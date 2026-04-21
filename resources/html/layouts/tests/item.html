@@ -1,0 +1,58 @@
+@forEach (var Item in Items) { 
+  <li class="list-group-item px-0 py-1 border-0" id="li-@Item.FullName">
+    
+    <!-- Main Item Row -->
+    <div class="form-check d-flex align-items-center">
+      <input 
+        class="form-check-input me-2" 
+        type="checkbox" 
+        id="check-@Item.FullName"
+        name="@Item.FullName" 
+        value="@Item.FullName"
+        hx-post="/api/tests/check"
+        hx-trigger="change"
+        hx-vals='js:{"name": this.name, "checked": this.checked ? 1 : 0}'
+        @if(Item.IsChecked) { checked }>
+      
+      <label class="form-check-label flex-grow-1" for="check-@Item.FullName">
+        @Item.Name
+      </label>
+    </div>
+
+    <!-- Tests (children of this Item) - properly indented -->
+    @if(Item.Tests.Count > 0) {
+      <ul class="list-group list-group-flush ms-5 mt-1 mb-2">   <!-- ms-5 gives nice indent -->
+        @forEach (var Test in Item.Tests) {
+          <li class="list-group-item px-0 py-1 border-0">
+            <div class="form-check d-flex align-items-center">
+              <input 
+                class="form-check-input me-2" 
+                type="checkbox" 
+                id="check-@Test.FullName"
+                name="@Test.FullName" 
+                value="@Test.FullName"
+                hx-post="/api/tests/check"
+                hx-trigger="change"
+                hx-vals='js:{"name": this.name, "checked": this.checked ? 1 : 0}'
+                @if(Test.IsChecked) { checked }>   <!-- Note: use Test.IsChecked, not Item -->
+              
+              <label class="form-check-label flex-grow-1" for="check-@Test.FullName">
+                @Test.Name
+              </label>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    <!-- Lazy-loaded hierarchical children -->
+    @if(Item.HasChildren) {
+      <ul class="list-group list-group-flush ms-4 mt-1" 
+          hx-get="/tests/children" 
+          hx-trigger="load" 
+          hx-vals='{"parent": "@Item.FullName"}'>
+        <li class="list-group-item text-muted">Loading...</li>
+      </ul>
+    }
+  </li>
+}

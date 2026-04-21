@@ -1,0 +1,17 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>@current.title</title>
+	<link rel="icon" type="image/x-icon" href="@env.resources/static/img/favicon.ico">
+  @Import root/basecss
+	@RenderHeader
+</head>
+<body class="d-flex flex-column min-vh-100 content-background">
+	@Import partials/header
+	@RenderBody
+	@Import partials/footer
+  @Import root/basejs
+</body>
+</html>

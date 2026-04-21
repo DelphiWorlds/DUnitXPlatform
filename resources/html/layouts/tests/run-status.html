@@ -1,0 +1,24 @@
+<div>
+  <input type="checkbox" id="needs-status" hidden @if (RunCheck.NeedsStatus) {checked}>
+  <div class="alert alert-secondary">
+    <div class="mt-2"> Current Test: @Runner.CurrentTest</div>
+  </div>
+  @forEach (var Item in Runner.Messages) {
+    <div>@Item.Message</div>
+  }
+  @if (Runner.IsRunning) {
+    <div class="mt-4 alert alert-primary">
+      <strong>Running..</strong><br>
+    </div>    
+  }
+  @if (Runner.WasSuccess) {
+    <div class="mt-4 alert alert-success">
+      <strong>PASS: All @Runner.TestCount tests passed</strong><br>
+    </div>
+  }
+  @if (Runner.WasFailure) {
+    <div class="mt-4 alert alert-danger">
+      <strong>FAIL: @Runner.FailCount of @Runner.TestCount enabled tests failed. Check messages above</strong><br>
+    </div>
+  }
+</div>

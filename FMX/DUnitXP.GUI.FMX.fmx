@@ -1,0 +1,50 @@
+object GUI: TGUI
+  Left = 0
+  Top = 0
+  Caption = 'DXP'
+  ClientHeight = 913
+  ClientWidth = 601
+  Position = ScreenCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnActivate = FormActivate
+  DesignerMasterStyle = 0
+  object RootLayout: TLayout
+    Align = Client
+    Size.Width = 601.000000000000000000
+    Size.Height = 913.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    object Memo: TMemo
+      Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+      DataDetectorTypes = []
+      StyledSettings = [Size, Style, FontColor]
+      TextSettings.Font.Family = 'Consolas'
+      Align = Client
+      Size.Width = 601.000000000000000000
+      Size.Height = 863.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      Viewport.Width = 597.000000000000000000
+      Viewport.Height = 859.000000000000000000
+    end
+    object BottomLayout: TLayout
+      Align = Bottom
+      Position.Y = 863.000000000000000000
+      Size.Width = 601.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+      object ClearMemoButton: TButton
+        Align = Center
+        Size.Width = 150.000000000000000000
+        Size.Height = 36.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        Text = 'Clear Messages'
+        OnClick = ClearMemoButtonClick
+      end
+    end
+  end
+end

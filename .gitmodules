@@ -1,0 +1,6 @@
+[submodule "libs/DUnitX"]
+	path = libs/DUnitX
+	url = https://github.com/VSoftTechnologies/DUnitX
+[submodule "libs/Charon"]
+	path = libs/Charon
+	url = https://github.com/DelphiWorlds/Charon

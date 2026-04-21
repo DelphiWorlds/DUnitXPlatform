@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{747B3F55-F458-43E0-B53F-B840020BEB9B}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="FMX\DXPFMX.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="VCL\DXPVCL.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Console\DXPConsole.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="DXPFMX">
+        <MSBuild Projects="FMX\DXPFMX.dproj"/>
+    </Target>
+    <Target Name="DXPFMX:Clean">
+        <MSBuild Projects="FMX\DXPFMX.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DXPFMX:Make">
+        <MSBuild Projects="FMX\DXPFMX.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DXPVCL">
+        <MSBuild Projects="VCL\DXPVCL.dproj"/>
+    </Target>
+    <Target Name="DXPVCL:Clean">
+        <MSBuild Projects="VCL\DXPVCL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DXPVCL:Make">
+        <MSBuild Projects="VCL\DXPVCL.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DXPConsole">
+        <MSBuild Projects="Console\DXPConsole.dproj"/>
+    </Target>
+    <Target Name="DXPConsole:Clean">
+        <MSBuild Projects="Console\DXPConsole.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DXPConsole:Make">
+        <MSBuild Projects="Console\DXPConsole.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="DXPFMX;DXPVCL;DXPConsole"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="DXPFMX:Clean;DXPVCL:Clean;DXPConsole:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="DXPFMX:Make;DXPVCL:Make;DXPConsole:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

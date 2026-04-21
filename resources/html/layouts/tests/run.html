@@ -1,0 +1,7 @@
+<div id="run-status-container" class="alert alert-info"
+  hx-get="/tests/run/status"
+  hx-target="#run-status"
+  @* hx-trigger could use a property of RunCheck for the poll interval? *@
+  hx-trigger="load, every 1s [htmx.find('#needs-status')?.checked !== false]">
+  <div id="run-status"></div>
+</div>

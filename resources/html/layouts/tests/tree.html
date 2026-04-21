@@ -1,0 +1,161 @@
+@Import partials/htmxjs
+<div class="card p-3">
+  <ul class="list-group list-group-flush" id="tree-root">
+    @forEach (var Item in Fixtures.Items) {
+      <li class="list-group-item px-0 py-1 border-0" id="li-@Item.FullName">
+        <div class="form-check d-flex align-items-center">
+          <input
+            class="form-check-input me-2"
+            type="checkbox"
+            id="check-@Item.FullName"
+            name="@Item.FullName"
+            value="@Item.FullName"
+            hx-post="/api/tests/check"
+            hx-trigger="change"
+            hx-vals='js:{"name": this.name, "checked": this.checked ? 1 : 0}'
+            hx-swap="none"
+            @if(Item.IsChecked) { checked }>
+          
+          <label class="form-check-label flex-grow-1" for="check-@Item.FullName">
+            @Item.Name
+          </label>
+        </div>
+
+        @if(Item.HasChildren) {
+          <!-- Lazy load children via HTMX -->
+          <ul class="list-group list-group-flush ms-4 mt-1" 
+              id="children-@Item.FullName"
+              hx-get="/tests/children"
+              hx-trigger="load"
+              hx-vals='{"parent": "@Item.FullName"}'>
+            <!-- Loading indicator (optional but nice) -->
+            <li class="list-group-item text-muted">
+              <span class="htmx-indicator">Loading...</span>
+            </li>
+          </ul>
+        }
+      </li>
+    }
+  </ul>
+
+<div class="mt-4 d-flex justify-content-end gap-2">
+  <button type="button" id="run-button" class="btn btn-primary" 
+    hx-post="/tests/run" 
+    hx-target="#run"> 
+    Run
+  </button>
+</div>
+
+<div id="run" class="mt-4"></div>
+
+<script>
+// Update button state whenever any checkbox changes (including dynamically loaded ones)
+function updateRunButton() {
+  const checkedCount = Array.from(document.querySelectorAll('#tree-root input[type="checkbox"]')).filter(cb => {
+    const li = cb.closest('li');
+    return !li.querySelector('ul') && cb.checked;
+  }).length;
+  const runBtn = document.getElementById('run-button');
+  if (runBtn) {
+    runBtn.disabled = (checkedCount === 0);
+  }
+}
+
+// Initial check on page load
+document.addEventListener('DOMContentLoaded', function() {
+  updateRunButton();
+});
+
+// Listen for changes on checkboxes — works for both static and HTMX-loaded content
+document.addEventListener('change', function(e) {
+  if (e.target.type === 'checkbox' && e.target.closest('#tree-root')) {
+    updateRunButton();
+    const isUserAction = !e.target.isProgrammatic;
+    delete e.target.isProgrammatic;
+    if (e.target.checked) {
+      // Enable children only if user checked a fixture
+      if (isUserAction) {
+        const li = e.target.closest('li');
+        if (li) {
+          const ul = li.querySelector('ul');
+          if (ul) {
+            ul.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+              if (!cb.checked) {
+                cb.isProgrammatic = true;
+                cb.checked = true;
+                const originalTrigger = cb.getAttribute('hx-trigger');
+                cb.setAttribute('hx-trigger', 'none');
+                cb.dispatchEvent(new Event('change', {bubbles: true}));
+                if (originalTrigger) cb.setAttribute('hx-trigger', originalTrigger);
+              }
+            });
+          }
+        }
+      }
+      // Enable parents
+      const li = e.target.closest('li');
+      let parentLi = li.parentElement.closest('li');
+      while (parentLi) {
+        const cb = parentLi.querySelector('input[type="checkbox"]');
+        if (cb && !cb.checked) {
+          cb.isProgrammatic = true;
+          cb.checked = true;
+          const originalTrigger = cb.getAttribute('hx-trigger');
+          cb.setAttribute('hx-trigger', 'none');
+          cb.dispatchEvent(new Event('change', {bubbles: true}));
+          if (originalTrigger) cb.setAttribute('hx-trigger', originalTrigger);
+        }
+        parentLi = parentLi.parentElement.closest('li');
+      }
+    } else {
+      // Disable children only if user unchecked a fixture
+      if (isUserAction) {
+        const li = e.target.closest('li');
+        if (li) {
+          const ul = li.querySelector('ul');
+          if (ul) {
+            ul.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+              if (cb.checked) {
+                cb.isProgrammatic = true;
+                cb.checked = false;
+                const originalTrigger = cb.getAttribute('hx-trigger');
+                cb.setAttribute('hx-trigger', 'none');
+                cb.dispatchEvent(new Event('change', {bubbles: true}));
+                if (originalTrigger) cb.setAttribute('hx-trigger', originalTrigger);
+              }
+            });
+          }
+        }
+      }
+      // Uncheck ancestors if they have no checked descendants
+      let checkLi = e.target.closest('li').parentElement.closest('li');
+      while (checkLi) {
+        const checkCb = checkLi.querySelector('input[type="checkbox"]');
+        if (checkCb && checkCb.checked) {
+          const checkUl = checkLi.querySelector('ul');
+          if (checkUl) {
+            const hasCheckedChild = Array.from(checkUl.querySelectorAll('input[type="checkbox"]')).some(cb => cb.checked);
+            if (!hasCheckedChild) {
+              checkCb.isProgrammatic = true;
+              checkCb.checked = false;
+              const originalTrigger = checkCb.getAttribute('hx-trigger');
+              checkCb.setAttribute('hx-trigger', 'none');
+              checkCb.dispatchEvent(new Event('change', {bubbles: true}));
+              if (originalTrigger) checkCb.setAttribute('hx-trigger', originalTrigger);
+            }
+          }
+        }
+        checkLi = checkLi.parentElement.closest('li');
+      }
+    }
+  }
+});
+
+// Also re-check after HTMX swaps content (e.g. after loading children or after "Run")
+document.addEventListener('htmx:afterSwap', function(e) {
+  // Only care about swaps that affect the tree
+  if (e.detail.target.id === 'tree-root' || e.detail.target.closest('#tree-root')) {
+    updateRunButton();
+  }
+});
+</script>
